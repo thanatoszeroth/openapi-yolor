@@ -1,0 +1,22 @@
+version: '3'
+services: 
+  api4yoloyr:
+    image: thanatoszeroth/api4yoloyr:2022.09
+    container_name: api4yoloyr
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - DISPLAY=$DISPLAY
+      - ServiceDomainName=0.0.0.0
+      - ServiceDomainPort=19191
+      - yolor_device=0
+      - yolor_conf_thres=0.3
+      - yolor_iou_thres=0.3
+    ports:
+      - 19191:19191
+    command:
+      - docker-entrypoint.sh
+
+
+
+
