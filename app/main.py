@@ -21,7 +21,7 @@ def custom_openapi():
         version = "1.0.0",
         description = "This is a very custom OpenAPI schema",
         contact = {
-            "name": "Chin-Lun, Hsiao",
+            "name": "CL, Hsiao",
             "url": "https://github.com/thanatoszeroth",
             "email": "thanatoszeroth@gmail.com.tw",
         },
@@ -59,12 +59,12 @@ async def index():
     Export swagger docs to json file.   
     File : openapi.json  
     ```sh
-    curl -O localhost:port/openapi.json
+    curl -O ServiceIP:ServicePort/openapi.json
     ```
     """
-    ServiceDomainName = os.getenv("ServiceDomainName")
-    ServiceDomainPort = os.getenv("ServiceDomainPort")
-    return {"api_docs": f"http://{ServiceDomainName}:{ServiceDomainPort}/docs"}
+    ServiceIP = os.getenv("ServiceIP")
+    ServicePort = os.getenv("ServicePort")
+    return {"api_docs": f"http://{ServiceIP}:{ServicePort}/docs"}
 
 @app.get("/readme", tags = ["Index"])
 async def readme():

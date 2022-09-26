@@ -12,6 +12,11 @@ services:
       - yolor_device=0
       - yolor_conf_thres=0.3
       - yolor_iou_thres=0.3
+      - yolor_weights=/yolor_models/yolor_p6.pt
+      - yolor_cfg=/yolor_models/yolor_p6.cfg
+      - yolor_names=/yolor_models/coco.names
+    volumes:
+      - $PWD/yolor_models:/yolor_models
     ports:
       - 19191:19191
     command:

@@ -1,10 +1,10 @@
+coremltools==5.2.0
 fastapi[all]
 uvicorn
 pydantic
 typing
 typing-extensions==4.1.1
 python-multipart
-coremltools==5.2.0
 pycocotools==2.0.0
 python-dotenv==0.20.0
 seaborn==0.11.2

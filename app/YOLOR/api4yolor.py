@@ -12,10 +12,7 @@ from fastapi import UploadFile
 from pydantic import BaseModel
 from starlette.responses import FileResponse 
 
-print(f"Python Main Path : {os.path.abspath(os.path.join(os.getcwd()))}")
-print(f"Current Path : {os.path.abspath(os.path.dirname(__file__))}")
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-print(f"Upper Path : {os.path.abspath(os.path.join(os.getcwd(), '..'))}")
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 import torch
 from oop4yolor import OOP4YOLOR
@@ -29,7 +26,7 @@ yolor = OOP4YOLOR()
 def plot_one_box(c1, c2, img, color=None, label=None, line_thickness=None):
     # Plots one bounding box on image img
     tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line/font thickness
-    color = color or [random.randint(0, 255) for _ in range(3)]
+    color = color or [0, 0, 0]
     cv2.rectangle(img, c1, c2, color, thickness=tl, lineType=cv2.LINE_AA)
     if label:
         tf = max(tl - 1, 1)  # font thickness

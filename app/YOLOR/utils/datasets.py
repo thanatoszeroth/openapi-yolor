@@ -3,7 +3,6 @@
 import glob
 import math
 import os
-import random
 import shutil
 import time
 from itertools import repeat
@@ -51,7 +50,8 @@ def exif_size(img):
             s = (s[1], s[0])
         elif rotation == 8:  # rotation 90
             s = (s[1], s[0])
-    except:
+    except Exception as e:
+        print(f"{e}")
         pass
 
     return s
@@ -230,9 +230,6 @@ class LoadWebcam:  # for inference
 
         if pipe.isnumeric():
             pipe = eval(pipe)  # local camera
-        # pipe = 'rtsp://192.168.1.64/1'  # IP camera
-        # pipe = 'rtsp://username:password@192.168.1.64/1'  # IP camera with login
-        # pipe = 'http://wmccpinetop.axiscam.net/mjpg/video.mjpg'  # IP golf camera
 
         self.pipe = pipe
         self.cap = cv2.VideoCapture(pipe)  # video capture object
@@ -539,18 +536,12 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
     def __len__(self):
         return len(self.img_files)
 
-    # def __iter__(self):
-    #     self.count = -1
-    #     print('ran dataset iter')
-    #     #self.shuffled_vector = np.random.permutation(self.nF) if self.augment else np.arange(self.nF)
-    #     return self
-
     def __getitem__(self, index):
         if self.image_weights:
             index = self.indices[index]
 
         hyp = self.hyp
-        mosaic = self.mosaic and random.random() < hyp['mosaic']
+        mosaic = self.mosaic and np.random.random() < hyp['mosaic']
         if mosaic:
             # Load mosaic
             img, labels = load_mosaic(self, index)
@@ -558,9 +549,9 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             shapes = None
 
             # MixUp https://arxiv.org/pdf/1710.09412.pdf
-            if random.random() < hyp['mixup']:
-                img2, labels2 = load_mosaic(self, random.randint(0, len(self.labels) - 1))
-                #img2, labels2 = load_mosaic9(self, random.randint(0, len(self.labels) - 1))
+            if np.random.random() < hyp['mixup']:
+                img2, labels2 = load_mosaic(self, np.random.randint(0, len(self.labels) - 1))
+                #img2, labels2 = load_mosaic9(self, np.random.randint(0, len(self.labels) - 1))
                 r = np.random.beta(8.0, 8.0)  # mixup ratio, alpha=beta=8.0
                 img = (img * r + img2 * (1 - r)).astype(np.uint8)
                 labels = np.concatenate((labels, labels2), 0)
@@ -599,7 +590,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             augment_hsv(img, hgain=hyp['hsv_h'], sgain=hyp['hsv_s'], vgain=hyp['hsv_v'])
 
             # Apply cutouts
-            # if random.random() < 0.9:
+            # if np.random.random() < 0.9:
             #     labels = cutout(img, labels)
 
         nL = len(labels)  # number of labels
@@ -610,13 +601,13 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
 
         if self.augment:
             # flip up-down
-            if random.random() < hyp['flipud']:
+            if np.random.random() < hyp['flipud']:
                 img = np.flipud(img)
                 if nL:
                     labels[:, 2] = 1 - labels[:, 2]
 
             # flip left-right
-            if random.random() < hyp['fliplr']:
+            if np.random.random() < hyp['fliplr']:
                 img = np.fliplr(img)
                 if nL:
                     labels[:, 1] = 1 - labels[:, 1]
@@ -833,7 +824,7 @@ class LoadImagesAndLabels9(Dataset):  # for training/testing
             index = self.indices[index]
 
         hyp = self.hyp
-        mosaic = self.mosaic and random.random() < hyp['mosaic']
+        mosaic = self.mosaic and np.random.random() < hyp['mosaic']
         if mosaic:
             # Load mosaic
             #img, labels = load_mosaic(self, index)
@@ -841,9 +832,9 @@ class LoadImagesAndLabels9(Dataset):  # for training/testing
             shapes = None
 
             # MixUp https://arxiv.org/pdf/1710.09412.pdf
-            if random.random() < hyp['mixup']:
-                #img2, labels2 = load_mosaic(self, random.randint(0, len(self.labels) - 1))
-                img2, labels2 = load_mosaic9(self, random.randint(0, len(self.labels) - 1))
+            if np.random.random() < hyp['mixup']:
+                #img2, labels2 = load_mosaic(self, np.random.randint(0, len(self.labels) - 1))
+                img2, labels2 = load_mosaic9(self, np.random.randint(0, len(self.labels) - 1))
                 r = np.random.beta(8.0, 8.0)  # mixup ratio, alpha=beta=8.0
                 img = (img * r + img2 * (1 - r)).astype(np.uint8)
                 labels = np.concatenate((labels, labels2), 0)
@@ -882,7 +873,7 @@ class LoadImagesAndLabels9(Dataset):  # for training/testing
             augment_hsv(img, hgain=hyp['hsv_h'], sgain=hyp['hsv_s'], vgain=hyp['hsv_v'])
 
             # Apply cutouts
-            # if random.random() < 0.9:
+            # if np.random.random() < 0.9:
             #     labels = cutout(img, labels)
 
         nL = len(labels)  # number of labels
@@ -893,13 +884,13 @@ class LoadImagesAndLabels9(Dataset):  # for training/testing
 
         if self.augment:
             # flip up-down
-            if random.random() < hyp['flipud']:
+            if np.random.random() < hyp['flipud']:
                 img = np.flipud(img)
                 if nL:
                     labels[:, 2] = 1 - labels[:, 2]
 
             # flip left-right
-            if random.random() < hyp['fliplr']:
+            if np.random.random() < hyp['fliplr']:
                 img = np.fliplr(img)
                 if nL:
                     labels[:, 1] = 1 - labels[:, 1]
@@ -954,7 +945,7 @@ def augment_hsv(img, hgain=0.5, sgain=0.5, vgain=0.5):
     cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR, dst=img)  # no return needed
 
     # Histogram equalization
-    # if random.random() < 0.2:
+    # if np.random.random() < 0.2:
     #     for i in range(3):
     #         img[:, :, i] = cv2.equalizeHist(img[:, :, i])
 
@@ -964,8 +955,8 @@ def load_mosaic(self, index):
 
     labels4 = []
     s = self.img_size
-    yc, xc = [int(random.uniform(-x, 2 * s + x)) for x in self.mosaic_border]  # mosaic center x, y
-    indices = [index] + [random.randint(0, len(self.labels) - 1) for _ in range(3)]  # 3 additional image indices
+    yc, xc = [int(np.random.uniform(-x, 2 * s + x)) for x in self.mosaic_border]  # mosaic center x, y
+    indices = [index] + [np.random.randint(0, len(self.labels) - 1) for _ in range(3)]  # 3 additional image indices
     for i, index in enumerate(indices):
         # Load image
         img, _, (h, w) = load_image(self, index)
@@ -1022,7 +1013,7 @@ def load_mosaic9(self, index):
 
     labels9 = []
     s = self.img_size
-    indices = [index] + [random.randint(0, len(self.labels) - 1) for _ in range(8)]  # 8 additional image indices
+    indices = [index] + [np.random.randint(0, len(self.labels) - 1) for _ in range(8)]  # 8 additional image indices
     for i, index in enumerate(indices):
         # Load image
         img, _, (h, w) = load_image(self, index)
@@ -1067,7 +1058,7 @@ def load_mosaic9(self, index):
         hp, wp = h, w  # height, width previous
 
     # Offset
-    yc, xc = [int(random.uniform(0, s)) for x in self.mosaic_border]  # mosaic center x, y
+    yc, xc = [int(np.random.uniform(0, s)) for x in self.mosaic_border]  # mosaic center x, y
     img9 = img9[yc:yc + 2 * s, xc:xc + 2 * s]
 
     # Concat/clip labels
@@ -1100,7 +1091,7 @@ def replicate(img, labels):
     for i in s.argsort()[:round(s.size * 0.5)]:  # smallest indices
         x1b, y1b, x2b, y2b = boxes[i]
         bh, bw = y2b - y1b, x2b - x1b
-        yc, xc = int(random.uniform(0, h - bh)), int(random.uniform(0, w - bw))  # offset x, y
+        yc, xc = int(np.random.uniform(0, h - bh)), int(np.random.uniform(0, w - bw))  # offset x, y
         x1a, y1a, x2a, y2a = [xc, yc, xc + bw, yc + bh]
         img[y1a:y2a, x1a:x2a] = img[y1b:y2b, x1b:x2b]  # img4[ymin:ymax, xmin:xmax]
         labels = np.append(labels, [[labels[i, 0], x1a, y1a, x2a, y2a]], axis=0)
@@ -1155,26 +1146,26 @@ def random_perspective(img, targets=(), degrees=10, translate=.1, scale=.1, shea
 
     # Perspective
     P = np.eye(3)
-    P[2, 0] = random.uniform(-perspective, perspective)  # x perspective (about y)
-    P[2, 1] = random.uniform(-perspective, perspective)  # y perspective (about x)
+    P[2, 0] = np.random.uniform(-perspective, perspective)  # x perspective (about y)
+    P[2, 1] = np.random.uniform(-perspective, perspective)  # y perspective (about x)
 
     # Rotation and Scale
     R = np.eye(3)
-    a = random.uniform(-degrees, degrees)
-    # a += random.choice([-180, -90, 0, 90])  # add 90deg rotations to small rotations
-    s = random.uniform(1 - scale, 1 + scale)
-    # s = 2 ** random.uniform(-scale, scale)
+    a = np.random.uniform(-degrees, degrees)
+    # a += np.random.choice([-180, -90, 0, 90])  # add 90deg rotations to small rotations
+    s = np.random.uniform(1 - scale, 1 + scale)
+    # s = 2 ** np.random.uniform(-scale, scale)
     R[:2] = cv2.getRotationMatrix2D(angle=a, center=(0, 0), scale=s)
 
     # Shear
     S = np.eye(3)
-    S[0, 1] = math.tan(random.uniform(-shear, shear) * math.pi / 180)  # x shear (deg)
-    S[1, 0] = math.tan(random.uniform(-shear, shear) * math.pi / 180)  # y shear (deg)
+    S[0, 1] = math.tan(np.random.uniform(-shear, shear) * math.pi / 180)  # x shear (deg)
+    S[1, 0] = math.tan(np.random.uniform(-shear, shear) * math.pi / 180)  # y shear (deg)
 
     # Translation
     T = np.eye(3)
-    T[0, 2] = random.uniform(0.5 - translate, 0.5 + translate) * width  # x translation (pixels)
-    T[1, 2] = random.uniform(0.5 - translate, 0.5 + translate) * height  # y translation (pixels)
+    T[0, 2] = np.random.uniform(0.5 - translate, 0.5 + translate) * width  # x translation (pixels)
+    T[1, 2] = np.random.uniform(0.5 - translate, 0.5 + translate) * height  # y translation (pixels)
 
     # Combined rotation matrix
     M = T @ S @ R @ P @ C  # order of operations (right to left) is IMPORTANT
@@ -1261,17 +1252,17 @@ def cutout(image, labels):
     # create random masks
     scales = [0.5] * 1 + [0.25] * 2 + [0.125] * 4 + [0.0625] * 8 + [0.03125] * 16  # image size fraction
     for s in scales:
-        mask_h = random.randint(1, int(h * s))
-        mask_w = random.randint(1, int(w * s))
+        mask_h = np.random.randint(1, int(h * s))
+        mask_w = np.random.randint(1, int(w * s))
 
         # box
-        xmin = max(0, random.randint(0, w) - mask_w // 2)
-        ymin = max(0, random.randint(0, h) - mask_h // 2)
+        xmin = max(0, np.random.randint(0, w) - mask_w // 2)
+        ymin = max(0, np.random.randint(0, h) - mask_h // 2)
         xmax = min(w, xmin + mask_w)
         ymax = min(h, ymin + mask_h)
 
         # apply random color mask
-        image[ymin:ymax, xmin:xmax] = [random.randint(64, 191) for _ in range(3)]
+        image[ymin:ymax, xmin:xmax] = [np.random.randint(64, 191) for _ in range(3)]
 
         # return unobscured labels
         if len(labels) and s > 0.03:
