@@ -23,9 +23,9 @@ class OOP4YOLOR:
         self.iou_thres = float(os.getenv("yolor_iou_thres"))
         self.imgsz = int(os.getenv("yolor_imgsz"))
 
-        weights = [os.getenv("yolor_weights")]
-        cfg = os.getenv("yolor_cfg")
-        self.names = os.getenv("yolor_names")
+        weights = [f"yolor_models/{os.getenv('yolor_weights')}"]
+        cfg = f"yolor_models/{os.getenv('yolor_cfg')}"
+        names = f"yolor_models/{os.getenv('yolor_names')}"
 
         # Initialize
         self.device = select_device(self.device)
@@ -45,7 +45,7 @@ class OOP4YOLOR:
             self.model.half()
 
         # Get names
-        self.names = self.load_classes(self.names)
+        self.names = self.load_classes(names)
         
         # Run inference
         # init img and run once
