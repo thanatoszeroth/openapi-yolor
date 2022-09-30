@@ -1,0 +1,5 @@
+# you need to exclude files
+# .gitignore
+
+*.py[co]
+__pycache__
